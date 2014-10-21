@@ -1,0 +1,58 @@
+---
+
+- name: Ensure the Kafka group exists
+  group: >-
+    name="{{ kafka_group }}"
+    state=present
+
+- name: Ensure the Kafka user exists
+  user: >-
+    name="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    state=present
+
+- name: Ensure the Kafka home parent directory exists
+  file: >-
+    path="{{ kafka_install_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Retrieve the Kafka package
+  get_url: >-
+    url="{{ kafka_tar_url }}"
+    dest="/tmp/kafka_2.9.2-{{ kafka_version }}.tar.gz"
+    mode=0640
+
+- name: Install the Kafka package
+  unarchive: >-
+    src="/tmp/kafka_2.9.2-{{ kafka_version }}.tar.gz"
+    dest="{{ kafka_install_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    copy=no
+
+- name: Set the kafka version as the current one
+  file: >-
+    src="{{ kafka_install_dir }}/kafka_2.9.2-{{ kafka_version }}"
+    dest="{{ kafka_install_dir }}/current"
+    state=link
+
+- name: Remove useless directories
+  file: >-
+    path="{{ kafka_install_dir }}/current/{{ item }}"
+    force=yes
+    state=absent
+  with_items:
+    - config
+    - logs
+
+- name: Copy the kafka perfs library
+  copy: >-
+     src="kafka-perf_2.9.2-{{ kafka_version }}.jar"
+     dest="{{ kafka_install_dir }}/current/libs/kafka-perf_2.9.2-{{ kafka_version }}.jar"
+     owner="{{ kafka_user }}"
+     group="{{ kafka_group }}"
+     mode=0640

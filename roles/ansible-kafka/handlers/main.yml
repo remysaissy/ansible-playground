@@ -1,0 +1,7 @@
+---
+
+- name: restart kafka
+  service: >-
+    enabled=yes
+    name=kafka
+    state=restarted

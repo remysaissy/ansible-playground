@@ -1,0 +1,8 @@
+---
+
+- name: Install Ganglia
+  hosts: Ganglia
+  sudo: yes
+  roles:
+    - ansible-ganglia
+

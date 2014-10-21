@@ -1,0 +1,6 @@
+---
+
+- include: packages.yml
+- include: ufw.yml
+- include: configure.yml
+- include: commands.yml

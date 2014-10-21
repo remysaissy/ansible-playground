@@ -1,0 +1,41 @@
+---
+
+- name: Ensure the Zookeeper group exists
+  group: >-
+    name="{{ zookeeper_group }}"
+    state=present
+
+- name: Ensure the Zookeeper user exists
+  user: >-
+    name="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    state=present
+
+- name: Ensure the Zookeeper home parent directory exists
+  file: >-
+    path="{{ zookeeper_install_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Retrieve the Zookeeper package
+  get_url: >-
+    url="{{ zookeeper_tar_url }}"
+    dest="/tmp/zookeeper-{{ zookeeper_version }}.tar.gz"
+    mode=0640
+
+- name: Install the Zookeeper package
+  unarchive: >-
+    src="/tmp/zookeeper-{{ zookeeper_version }}.tar.gz"
+    dest="{{ zookeeper_install_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    copy=no
+
+- name: Set the zookeeper version as the current one
+  file: >-
+    src="{{ zookeeper_install_dir }}/zookeeper-{{ zookeeper_version }}"
+    dest="{{ zookeeper_install_dir }}/current"
+    state=link

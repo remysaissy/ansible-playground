@@ -1,0 +1,609 @@
+---
+
+# kafka version.
+kafka_version: "0.8.1.1"
+
+# URL of Tar packages.
+kafka_tar_url: "http://mirrors.ircam.fr/pub/apache/kafka/{{ kafka_version }}/kafka_2.9.2-{{ kafka_version }}.tgz"
+
+# Name of the user who is running Kafka
+kafka_user: "kafka"
+
+# Primary group of the kafka user.
+kafka_group: "hadoop"
+
+# The installation directory. It is also the home of the kafka user.
+kafka_install_dir: "/home/{{ kafka_user }}/pkg"
+
+kafka_log_dir: "/home/{{ kafka_user }}/log"
+
+kafka_pid_dir: "/home/{{ kafka_user }}/run"
+
+kafka_lock_dir: "/home/{{ kafka_user }}/lock"
+
+kafka_data_dir: "/home/{{ kafka_user }}/data"
+
+kafka_conf_dir: "/home/{{ kafka_user }}/conf"
+
+kafka_port: 9092
+
+kafka_ports:
+  - port: 9092
+    proto: tcp
+
+#
+# Kafka server.properties
+#
+kafka_server_props:
+
+############################# Server Basics #############################
+
+    - name: 'broker.id'
+      value: "{{ kafka_broker_id }}"
+
+    - name: 'port'
+      value: "{{ kafka_port }}"
+
+    - name: 'host.name'
+      value: "{{ ansible_fqdn }}"
+
+    - name: 'advertised.host.name'
+      value: "{{ ansible_fqdn }}"
+
+    - name: 'advertised.port'
+      value: "{{ kafka_port }}"
+
+    - name: 'num.network.threads'
+      value: 2
+
+    - name: 'num.io.threads'
+      value: 8
+
+    - name: 'socket.send.buffer.bytes'
+      value: 1048576
+
+    - name: 'socket.receive.buffer.bytes'
+      value: 1048576
+
+    - name: 'socket.request.max.bytes'
+      value: 104857600
+
+    - name: 'log.dir'
+      value: "{{ kafka_log_dir }}"
+
+    - name: 'num.partitions'
+      value: 2
+
+############################# Log Flush Policy #############################
+
+    - name: 'log.flush.interval.messages'
+      value: 10000
+
+    - name: 'log.flush.interval.ms'
+      value: 10000
+
+############################# Log Retention Policy #############################
+
+    - name: 'log.retention.hours'
+      value: 168
+
+#    - name: 'log.retention.bytes'
+#      value: 1073741824
+
+    - name: 'log.segment.bytes'
+      value: 536870912
+
+    - name: 'log.retention.check.interval.ms'
+      value: 60000
+
+    - name: 'log.cleaner.enable'
+      value: 'false'
+
+############################# Zookeeper #############################
+
+    - name: 'zookeeper.connect'
+      value: "{{ groups['zookeeper']|join(':2181,') }}:2181"
+
+    - name: 'zookeeper.connection.timeout.ms'
+      value: 1000000
+
+kafka_consumer_props:
+    - name: 'zookeeper.connect'
+      value: "{{ groups['zookeeper']|join(':2181,') }}:2181"
+
+    - name: 'zookeeper.connection.timeout.ms'
+      value: 1000000
+
+    - name: 'group.id'
+      value: "{{ kafka_consumer_group_id }}"
+
+    - name: 'consumer.timeout.ms'
+      value: 5000
+
+kafka_producer_props:
+############################# Producer Basics #############################
+    - name: 'metadata.broker.list'
+      value: "{{ groups['kafka']|join(':9092,') }}:9092"
+
+#    - name: 'partitioner.class'
+#      value: ''
+
+    - name: 'producer.type'
+      value: 'sync'
+
+    - name: 'compression.codec'
+      value: 'none'
+
+    - name: 'serializer.class'
+      value: 'kafka.serializer.DefaultEncoder'
+
+#    - name: 'compressed.topics'
+#      value: ''
+
+############################# Async Producer #############################
+#    - name: 'queue.buffering.max.ms'
+#      value: ''
+
+#    - name: 'queue.buffering.max.messages'
+#      value: ''
+
+#    - name: 'queue.enqueue.timeout.ms'
+#      value: ''
+
+#    - name: 'batch.num.messages'
+#      value: ''
+
+
+#
+# kafka Logging Configuration
+#
+kafka_log4j_props:
+  # The level indicated in the log4j.rootLogger property.
+  default_threshold: 'INFO'
+  default_appenders:
+    - CONSOLE
+
+  # A log4j line is formatted using log4j.category.com.foo.bar = value
+  # There is two special entries: logger and appender.
+  # logger format:
+  #    logger:
+  #    - name: 'kafka.network.RequestChannel$'
+  #      level: 'WARN'
+  #      appenders:
+  #        - REQUEST
+  #
+  # appender format:
+  #      - name: 'CONSOLE'
+  #        params:
+  #          - name: 'class'
+  #            value: 'org.apache.log4j.ConsoleAppender'
+  #
+  #          - name: 'Threshold'
+  #            value: 'INFO'
+  #
+  #          - name: 'layout'
+  #            value: 'org.apache.log4j.PatternLayout'
+  #
+  #          - name: 'layout.ConversionPattern'
+  #            value: '[%d] %p %m (%c)%n'
+  #
+  # Everything else format:
+  #    additivity:
+  #      - name: 'kafka.network.RequestChannel$'
+  #        value: 'false'
+  categories:
+    logger:
+    - name: 'kafka.network.RequestChannel$'
+      level: 'WARN'
+      appenders:
+        - REQUEST
+
+#    - name: 'kafka.network.Processor'
+#      level: 'TRACE'
+#      appenders:
+#        - REQUEST
+
+#    - name: 'kafka.server.KafkaApis'
+#      level: 'TRACE'
+#      appenders:
+#        - REQUEST
+
+    - name: 'kafka.request.logger'
+      level: 'WARN'
+      appenders:
+        - REQUEST
+
+    - name: 'kafka.controller'
+      level: 'TRACE'
+      appenders:
+        - CONTROLLER
+
+    - name: 'kafka.log.LogCleaner'
+      level: 'INFO'
+      appenders:
+        - CLEANER
+
+    - name: 'state.change.logger'
+      level: 'TRACE'
+      appenders:
+        - STATE_CHANGE
+
+    additivity:
+      - name: 'kafka.network.RequestChannel$'
+        value: 'false'
+
+#      - name: 'kafka.server.KafkaApis'
+#        value: 'false'
+
+      - name: 'kafka.request.logger'
+        value: 'false'
+
+      - name: 'kafka.controller'
+        value: 'false'
+
+      - name: 'kafka.log.LogCleaner'
+        value: 'false'
+
+      - name: 'state.change.logger'
+        value: 'false'
+
+    appender:
+      - name: 'CONSOLE'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.ConsoleAppender'
+
+          - name: 'Threshold'
+            value: 'INFO'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'SERVER'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/server.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'STATE_CHANGE'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/state-change.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'REQUEST'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/request.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'CLEANER'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/cleaner.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'CONTROLLER'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/controller.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'DEBUG'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/controller.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+#
+# kafka Tools Logging Configuration
+#
+kafka_tools_log4j_props:
+  # The level indicated in the log4j.rootLogger property.
+  default_threshold: 'WARN'
+  default_appenders:
+    - CONSOLE
+
+  # A log4j line is formatted using log4j.category.com.foo.bar = value
+  # There is two special entries: logger and appender.
+  # logger format:
+  #    logger:
+  #    - name: 'kafka.network.RequestChannel$'
+  #      level: 'WARN'
+  #      appenders:
+  #        - REQUEST
+  #
+  # appender format:
+  #      - name: 'CONSOLE'
+  #        params:
+  #          - name: 'class'
+  #            value: 'org.apache.log4j.ConsoleAppender'
+  #
+  #          - name: 'Threshold'
+  #            value: 'INFO'
+  #
+  #          - name: 'layout'
+  #            value: 'org.apache.log4j.PatternLayout'
+  #
+  #          - name: 'layout.ConversionPattern'
+  #            value: '[%d] %p %m (%c)%n'
+  #
+  # Everything else format:
+  #    additivity:
+  #      - name: 'kafka.network.RequestChannel$'
+  #        value: 'false'
+  categories:
+    appender:
+      - name: 'CONSOLE'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.ConsoleAppender'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+
+#
+# kafka Test Logging Configuration
+#
+kafka_test_log4j_props:
+  # The level indicated in the log4j.rootLogger property.
+  default_threshold: 'INFO'
+  default_appenders:
+    - CONSOLE
+
+  # A log4j line is formatted using log4j.category.com.foo.bar = value
+  # There is two special entries: logger and appender.
+  # logger format:
+  #    logger:
+  #    - name: 'kafka.network.RequestChannel$'
+  #      level: 'WARN'
+  #      appenders:
+  #        - REQUEST
+  #
+  # appender format:
+  #      - name: 'CONSOLE'
+  #        params:
+  #          - name: 'class'
+  #            value: 'org.apache.log4j.ConsoleAppender'
+  #
+  #          - name: 'Threshold'
+  #            value: 'INFO'
+  #
+  #          - name: 'layout'
+  #            value: 'org.apache.log4j.PatternLayout'
+  #
+  #          - name: 'layout.ConversionPattern'
+  #            value: '[%d] %p %m (%c)%n'
+  #
+  # Everything else format:
+  #    additivity:
+  #      - name: 'kafka.network.RequestChannel$'
+  #        value: 'false'
+  categories:
+    logger:
+#    - name: 'kafka.producer.async.DefaultEventHandler'
+#      level: 'DEBUG'
+#      appenders:
+#        - SERVER
+
+#    - name: 'kafka.client.ClientUtils'
+#      level: 'DEBUG'
+#      appenders:
+#        - SERVER
+
+    - name: 'kafka.perf'
+      level: 'DEBUG'
+      appenders:
+        - SERVER
+
+    - name: 'kafka.perf.ProducerPerformance$ProducerThread'
+      level: 'DEBUG'
+      appenders:
+        - SERVER
+
+#    - name: 'org.I0Itec.zkclient.ZkClient'
+#      level: 'DEBUG'
+
+    - name: 'kafka'
+      level: 'INFO'
+      appenders:
+        - SERVER
+
+    - name: 'kafka.network.RequestChannel$'
+      level: 'TRACE'
+      appenders:
+        - REQUEST
+
+#    - name: 'kafka.network.Processor'
+#      level: 'TRACE'
+#      appenders:
+#        - REQUEST
+
+#    - name: 'kafka.server.KafkaApis'
+#      level: 'TRACE'
+#      appenders:
+#        - REQUEST
+
+    - name: 'kafka.request.logger'
+      level: 'TRACE'
+      appenders:
+        - REQUEST
+
+    - name: 'kafka.controller'
+      level: 'TRACE'
+      appenders:
+        - CONTROLLER
+
+    - name: 'state.change.logger'
+      level: 'TRACE'
+      appenders:
+        - STATE_CHANGE
+
+    additivity:
+      - name: 'kafka.network.RequestChannel$'
+        value: 'false'
+
+#      - name: 'kafka.server.KafkaApis'
+#        value: 'false'
+
+      - name: 'kafka.request.logger'
+        value: 'false'
+
+      - name: 'kafka.controller'
+        value: 'false'
+
+      - name: 'state.change.logger'
+        value: 'false'
+
+    appender:
+      - name: 'CONSOLE'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.ConsoleAppender'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'SERVER'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/server.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'STATE_CHANGE'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/state-change.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'REQUEST'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/request.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'
+
+      - name: 'CONTROLLER'
+        params:
+          - name: 'class'
+            value: 'org.apache.log4j.DailyRollingFileAppender'
+
+          - name: 'DatePattern'
+            value: "'.'yyyy-MM-dd-HH"
+
+          - name: 'File'
+            value: '{{ kafka_log_dir }}/controller.log'
+
+          - name: 'layout'
+            value: 'org.apache.log4j.PatternLayout'
+
+          - name: 'layout.ConversionPattern'
+            value: '[%d] %p %m (%c)%n'

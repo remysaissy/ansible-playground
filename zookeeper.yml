@@ -1,0 +1,8 @@
+---
+
+- name: Install Zookeeper
+  hosts: zookeeper
+  sudo: yes
+  roles:
+    - ansible-zookeeper
+

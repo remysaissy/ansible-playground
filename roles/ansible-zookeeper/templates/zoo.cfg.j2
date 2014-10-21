@@ -1,0 +1,5 @@
+{% for e in zookeeper_zoo_cfg_content %}
+{{ e.name }}={{ e.value }}
+{% endfor %}
+
+dataDir={{ zookeeper_data_dir }}

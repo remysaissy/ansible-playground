@@ -1,0 +1,24 @@
+log4j.rootLogger={{ kafka_log4j_props.default_threshold }}, {{ kafka_log4j_props.default_appenders|join(", ") }}
+{% for category, values in kafka_log4j_props.categories.iteritems() %}
+# {{ category }}s
+{% if category == 'appender' %}
+{% for appender in values %}
+{% set name = appender.name %}
+{% for param in appender.params %}
+{% if param.name != 'class' %}
+log4j.appender.{{ name }}.{{ param.name }}={{ param.value }}
+{% else %}
+log4j.appender.{{ name }}={{ param.value }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% elif category == 'logger' %}
+{% for logger in values %}
+log4j.logger.{{ logger.name }}={{ logger.level }}, {{ logger.appenders|join(", ") }}
+{% endfor %}
+{% else %}
+{% for entry in values %}
+log4j.{{ category }}.{{ entry.name }}={{ entry.value }}
+{% endfor %}
+{% endif %}
+{% endfor %}

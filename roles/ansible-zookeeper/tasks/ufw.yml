@@ -1,0 +1,9 @@
+---
+
+- name: Open the necessary ports ufw
+  ufw: >-
+    rule={{ item.rule|default('allow') }}
+    port={{ item.port }}
+    proto={{ item.proto }}
+    log={{ item.log|default('no') }}
+  with_items: zookeeper_ports

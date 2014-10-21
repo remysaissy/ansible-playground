@@ -1,0 +1,118 @@
+---
+
+# Zookeeper version.
+zookeeper_version: "3.4.6"
+
+# URL of Tar packages.
+zookeeper_tar_url: "http://mirrors.ircam.fr/pub/apache/zookeeper/zookeeper-{{ zookeeper_version }}/zookeeper-{{ zookeeper_version }}.tar.gz"
+
+# Name of the user who is running Zookeeper
+zookeeper_user: "zookeeper"
+
+# Primary group of the zookeeper user.
+zookeeper_group: "hadoop"
+
+# The installation directory. It is also the home of the Zookeeper user.
+zookeeper_install_dir: "/home/{{ zookeeper_user }}/pkg"
+
+zookeeper_log_dir: "/home/{{ zookeeper_user }}/log"
+
+zookeeper_pid_dir: "/home/{{ zookeeper_user }}/run"
+
+zookeeper_lock_dir: "/home/{{ zookeeper_user }}/lock"
+
+zookeeper_data_dir: "/home/{{ zookeeper_user }}/data"
+
+zookeeper_conf_dir: "/home/{{ zookeeper_user }}/conf"
+
+# Listen port
+zookeeper_port: 2181
+
+zookeeper_ports:
+  - port: 2181
+    proto: tcp
+
+# List of parameters for zoo.cfg
+# data dir and the list of servers are automatically added.
+zookeeper_zoo_cfg_content:
+  - name: 'tickTime'
+    value: 2000
+
+  - name: 'initLimit'
+    value: 10
+
+  - name: 'syncLimit'
+    value: 5
+
+  - name: 'clientPort'
+    value: "{{ zookeeper_port }}"
+
+  - name: 'autopurge.snapRetainCount'
+    value: 3
+
+  - name: 'autopurge.purgeInterval'
+    value: 1
+
+#
+# ZooKeeper Logging Configuration
+#
+
+zookeeper_log_cfg_content:
+  # The level indicated in the log4j.rootLogger property.
+  default_threshold: 'INFO'
+
+  appenders:
+    - name: 'CONSOLE'
+# Below are log4j.appender.NAME parameters.
+      params:
+        - name: 'class'
+          value: 'org.apache.log4j.ConsoleAppender'
+
+        - name: 'Threshold'
+          value: 'INFO'
+
+        - name: 'layout'
+          value: 'org.apache.log4j.PatternLayout'
+
+        - name: 'layout.ConversionPattern'
+          value: '%d{ISO8601} [myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n'
+
+    - name: 'ROLLINGFILE'
+      params:
+        - name: 'class'
+          value: 'org.apache.log4j.RollingFileAppender'
+
+        - name: 'Threshold'
+          value: 'INFO'
+
+        - name: 'File'
+          value: '{{ zookeeper_log_dir }}/zookeeper.log'
+
+        - name: 'MaxFileSize'
+          value: '10MB'
+
+        - name: 'MaxBackupIndex'
+          value: 10
+
+        - name: 'layout'
+          value: 'org.apache.log4j.PatternLayout'
+
+        - name: 'layout.ConversionPattern'
+          value: '%d{ISO8601} [myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n'
+
+    - name: 'TRACEFILE'
+      params:
+        - name: 'class'
+          value: 'org.apache.log4j.FileAppender'
+
+        - name: 'Threshold'
+          value: 'TRACE'
+
+        - name: 'File'
+          value: '{{ zookeeper_log_dir }}/zookeeper_trace.log'
+
+        - name: 'layout'
+          value: 'org.apache.log4j.PatternLayout'
+
+        - name: 'layout.ConversionPattern'
+          value: '%d{ISO8601} [myid:%X{myid}] - %-5p [%t:%C{1}@%L][%x] - %m%n'

@@ -1,0 +1,12 @@
+log4j.rootLogger={{ zookeeper_log_cfg_content.default_threshold }}, {{ zookeeper_log_cfg_content.appenders|join(", ", attribute='name') }}
+
+{% for appender in zookeeper_log_cfg_content.appenders %}
+{% set name = appender.name %}
+{% for param in appender.params %}
+{% if param.name != 'class' %}
+log4j.appender.{{ name }}.{{ param.name }}={{ param.value }}
+{% else %}
+log4j.appender.{{ name }}={{ param.value }}
+{% endif %}
+{% endfor %}
+{% endfor %}

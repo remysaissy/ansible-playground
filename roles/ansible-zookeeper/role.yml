@@ -1,0 +1,12 @@
+---
+
+- name: test zookeeper role
+  hosts: all
+  sudo: yes
+  vars_files:
+    - 'defaults/main.yml'
+
+  tasks:
+    - include: 'tasks/main.yml'
+    - include: 'tasks/configure.yml'
+    - include: 'tasks/packages.yml'

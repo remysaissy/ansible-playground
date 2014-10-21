@@ -1,0 +1,134 @@
+---
+
+- name: Ensure the Kafka conf directory exists
+  file: >-
+    path="{{ kafka_conf_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Kafka config symlink directory exists
+  file: >-
+    src="{{ kafka_conf_dir }}"
+    dest="{{ kafka_install_dir }}/current/config"
+    state=link
+
+- name: Ensure the Kafka log directory exists
+  file: >-
+    path="{{ kafka_log_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Kafka logs symlink directory exists
+  file: >-
+    src="{{ kafka_log_dir }}"
+    dest="{{ kafka_install_dir }}/current/logs"
+    state=link
+
+- name: Ensure the Kafka pid directory exists
+  file: >-
+    path="{{ kafka_pid_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Kafka lock directory exists
+  file: >-
+    path="{{ kafka_lock_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Kafka data directory exists
+  file: >-
+    path="{{ kafka_data_dir }}"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Copy consumer.properties configuration file
+  template: >-
+    src=consumer.properties.j2
+    dest="{{ kafka_conf_dir }}/consumer.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy producer.properties configuration file
+  template: >-
+    src=producer.properties.j2
+    dest="{{ kafka_conf_dir }}/producer.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy server.properties configuration file
+  template: >-
+    src=server.properties.j2
+    dest="{{ kafka_conf_dir }}/server.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy log4j.properties configuration file
+  template: >-
+    src=log4j.properties.j2
+    dest="{{ kafka_conf_dir }}/log4j.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy tools-log4j.properties configuration file
+  template: >-
+    src=tools-log4j.properties.j2
+    dest="{{ kafka_conf_dir }}/tools-log4j.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy test-log4j.properties configuration file
+  template: >-
+    src=test-log4j.properties.j2
+    dest="{{ kafka_conf_dir }}/test-log4j.properties"
+    owner="{{ kafka_user }}"
+    group="{{ kafka_group }}"
+    mode=0640
+  notify:
+    - restart kafka
+
+- name: Copy kafka service file
+  template: >-
+    src=kafka.service.j2
+    dest="/etc/init.d/kafka"
+    owner="root"
+    group="root"
+    mode=0755
+  notify:
+    - restart kafka
+
+- name: Start the service
+  service: >-
+    enabled=yes
+    name=kafka
+    state=started

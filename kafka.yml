@@ -1,0 +1,7 @@
+---
+
+- name: Install Kafka
+  hosts: kafka
+  sudo: yes
+  roles:
+    - ansible-kafka

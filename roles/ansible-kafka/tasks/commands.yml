@@ -1,0 +1,37 @@
+---
+
+- name: Execute the console producer
+  command: "{{ kafka_install_dir }}/current/bin/kafka-console-producer.sh"
+  when: kafka_run_console_producer is defined
+
+- name: Execute the console consumer
+  command: "{{ kafka_install_dir }}/current/bin/kafka-console-consumer.sh"
+  when: kafka_run_console_consumer is defined
+
+- name: Execute the producer perf test
+  command: "{{ kafka_install_dir }}/current/bin/kafka-producer-perf-test.sh --topic testAsyncProducerPerf --broker-list {{ groups['kafka']|join(':9092,') }}:9092 --messages 5000"
+  when: kafka_run_producer_perf_test is defined
+
+- name: Execute the consumer perf test
+  command: "{{ kafka_install_dir }}/current/bin/kafka-consumer-perf-test.sh --topic testAsyncProducerPerf --zookeeper {{ groups['zookeeper']|join(':2181,') }}:2181"
+  when: kafka_run_consumer_perf_test is defined
+
+- name: Execute the simple consumer perf test
+  command: "{{ kafka_install_dir }}/current/bin/kafka-simple-consumer-perf-test.sh"
+  when: kafka_run_simple_consumer_perf_test is defined
+
+- name: Execute the replay log producer
+  command: "{{ kafka_install_dir }}/current/bin/kafka-replay-log-producer.sh"
+  when: kafka_run_replay_log_producer is defined
+
+- name: Execute the preferred replica election
+  command: "{{ kafka_install_dir }}/current/bin/kafka-preferred-replica-election.sh"
+  when: kafka_run_preferred_replica_election is defined
+
+- name: Execute the reassign partitions
+  command: "{{ kafka_install_dir }}/current/bin/kafka-reassign-partitions.sh"
+  when: kafka_run_reassign_partitions is defined
+
+- name: Execute the topics
+  command: "{{ kafka_install_dir }}/current/bin/kafka-topics.sh --create --topic test --zookeeper {{ groups['zookeeper']|join(':2181,') }}:2181 --partitions 4 --replication-factor 1"
+  when: kafka_run_topics is defined

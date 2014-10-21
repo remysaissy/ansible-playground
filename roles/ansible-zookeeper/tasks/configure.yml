@@ -1,0 +1,103 @@
+---
+
+- name: Ensure the Zookeeper conf directory exists
+  file: >-
+    path="{{ zookeeper_conf_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Zookeeper log directory exists
+  file: >-
+    path="{{ zookeeper_log_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Zookeeper pid directory exists
+  file: >-
+    path="{{ zookeeper_pid_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Zookeeper lock directory exists
+  file: >-
+    path="{{ zookeeper_lock_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Ensure the Zookeeper data directory exists
+  file: >-
+    path="{{ zookeeper_data_dir }}"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0750
+    recurse=yes
+    state=directory
+
+- name: Create the Zookeeper node id file
+  shell: echo "{{ zookeeper_id }}" > "{{ zookeeper_data_dir }}/myid"
+
+- name: Ensure the myid file permissions
+  file: >-
+    path="{{ zookeeper_data_dir }}/myid"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0640
+    state=touch
+
+- name: Copy zoo.cfg configuration file
+  template: >-
+    src=zoo.cfg.j2
+    dest="{{ zookeeper_conf_dir }}/zoo.cfg"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0640
+  notify:
+    - restart zookeeper
+
+- name: Copy log4j.properties configuration file
+  template: >-
+    src=log4j.properties.j2
+    dest="{{ zookeeper_conf_dir }}/log4j.properties"
+    owner="{{ zookeeper_user }}"
+    group="{{ zookeeper_group }}"
+    mode=0640
+  notify:
+    - restart zookeeper
+
+- name: Copy zookeeper default variables file
+  template: >-
+    src=zookeeper.default.j2
+    dest="/etc/default/zookeeper"
+    owner="root"
+    group="root"
+    mode=0755
+  notify:
+    - restart zookeeper
+
+- name: Copy zookeeper service file
+  template: >-
+    src=zookeeper.service.j2
+    dest="/etc/init.d/zookeeper"
+    owner="root"
+    group="root"
+    mode=0755
+  notify:
+    - restart zookeeper
+
+- name: Start the service
+  service: >-
+    enabled=yes
+    name=zookeeper
+    state=started
