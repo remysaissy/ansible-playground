@@ -1,0 +1,3 @@
+[submodule "roles/ansible-ganglia"]
+	path = roles/ansible-ganglia
+	url = git@github.com:remysaissy/ansible-ganglia.git
